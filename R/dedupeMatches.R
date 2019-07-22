@@ -164,8 +164,8 @@ dedupeMatches <- function(matchesA, matchesB, EM, matchesLink,
         mat.adj <- as.matrix(mat.adj)
 
         ## Solve linear sum assignment problem
-        T1 <- solve_LSAP(mat.adj)
-        temp.0 <- cbind(1:dim, T1$perm)
+        T1 <- solve_LSAP(mat.adj, maximum = TRUE)
+        temp.0 <- cbind(1:dim, T1)
         n1 <- which(rowSums(mat.adj) == 0)
         n2 <- which(colSums(mat.adj) == 0)
 

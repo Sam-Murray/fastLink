@@ -32,7 +32,8 @@ Imports:
     dplyr,
     plotrix,
     grDevices,
-    graphics
+    graphics,
+    clue
 Depends:
     R (>= 2.14.0)
 LinkingTo: RcppArmadillo, Rcpp, RcppEigen
