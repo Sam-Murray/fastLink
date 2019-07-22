@@ -21,7 +21,7 @@
 #' 
 #' @author Ted Enamorado <ted.enamorado@gmail.com> and Ben Fifield <benfifield@gmail.com>
 #' @export
-#' @importFrom adagio assignment
+#' @importFrom clue solve_LSAP
 #' @importFrom dplyr group_by summarise n "%>%"
 #' @importFrom stringdist stringdist
 #' @importFrom stats runif
@@ -164,7 +164,7 @@ dedupeMatches <- function(matchesA, matchesB, EM, matchesLink,
         mat.adj <- as.matrix(mat.adj)
 
         ## Solve linear sum assignment problem
-        T1 <- suppressWarnings(assignment(-mat.adj))
+        T1 <- solve_LSAP(mat.adj)
         temp.0 <- cbind(1:dim, T1$perm)
         n1 <- which(rowSums(mat.adj) == 0)
         n2 <- which(colSums(mat.adj) == 0)
