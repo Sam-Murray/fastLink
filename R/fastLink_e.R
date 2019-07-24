@@ -173,12 +173,12 @@ fastLink <- function(dfA, dfB, varnames,
   }
   
   ## Check class of each variable
-  classA <- map(metric_names, lapply(dfA[ ,.x], class))
-  classB <- map(metric_names, lapply(dfB[ ,.x], class))
+  classA <- map(metric_names, lapply(dfA[[.x]], class))
+  classB <- map(metric_names, lapply(dfB[[.x]], class))
   
   for(i in seq_along(metric)){
     
-    if(any(metric[[i]]$checkType(classA(i))|metric[[i]]$checkType(classB(i)))){
+    if(any(!metric[[i]]$checkType(classA(i)))|any(!metric[[i]]$typeCheck(classB(i)))){
       stop(past0("You have specified that a variable with an incompatible class be compared using the ", i,"th metric. Please check your variable classes."))
     }
     

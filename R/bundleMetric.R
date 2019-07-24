@@ -30,7 +30,13 @@
 #' @export
 #' @import tidyverse
 
-bundleMetric <-  function(metric_func, names, cutoffs, ... , type = NULL, typeCheck = NULL)
+bundleMetric <-  function(metric_func, names, cutoffs, ... , type = NULL, typeCheck = NULL){
+  
+  
+  
+  
+  
+}
   
 #' bundleMatMetric
 #'
@@ -64,4 +70,22 @@ bundleMetric <-  function(metric_func, names, cutoffs, ... , type = NULL, typeCh
 #' @export
 #' @import tidyverse
 
-bundleMetric <-  function(metric_func, names, cutoffs, ... , type = NULL, typeCheck = NULL)
+bundleMatMetric <-  function(metric_func, varnames, cutoffs, ... , type = NULL, typeCheck = NULL){
+  
+  output = list()
+  output$varnames <-  varnames
+  if(is.null(type) && (is.null(typeCheck))){
+    warning("bundleMatMetric recommends passing a type or type checking function in order to ensure that the output function is nevery given a type it cannot handle")
+  }else if(is.null(typeCheck)){
+    typeCheck <-  function(x){
+      result <-  (unlist(x) == type)
+      return(all(result, na.rm = TRUE))
+    }
+  }
+  output$typeCheck = typeCheck
+  
+  metric 
+  
+  
+  
+}
