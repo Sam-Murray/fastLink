@@ -1,3 +1,13 @@
+
+typeCheck <- function(val, check){
+  if(is.character(check)){
+    return(class(val) == check)
+  }else if(is.function(check) | class(check) == "function"){
+    return(check(val))
+  }
+}
+
+
 #' checkArgs
 #'
 #' Takes a function with arguments, and returns a modified function that checks the types of each argument.
@@ -20,7 +30,7 @@
 #'  }
 #'}
 #'#We can add on the argument checks using checkArgs:
-#'str_only_print <-  checkArgs(str_only_print, x = is.character())
+#'str_only_print <-  checkArgs(str_only_print, x = is.character)
 #'#Now we instead of throwing error "AAAAAAAAAAAA" when being passed a string, it will throw "Incorrect argument type for argument x in str_only_print"
 #' 
 #' 
@@ -29,7 +39,6 @@
 #'
 #' @export
 #' @import tidyverse
-
 checkArgs <-  function(func, ...){
   func_name = deparse(substitute(func))
   if(!(is.function(func)|(class(func) == "function"))){
@@ -37,23 +46,61 @@ checkArgs <-  function(func, ...){
   } 
   #Gets the list of arguments to check
   checkList = list(...)
+  
+  #Checks that the tests are valid tests:
+  for(i in checkList){
+    if(!(is.character(i)|is.function(i)|class(i)=="function")){
+      stop("All checks passed to checkArgs must be either functions or strings denoting classes")
+    }
+  }
+  
   #Gets the list of args for 
   argList = names(formals(func))
+  #Checks that the variables being checked are in the list of args for func
+  
+  if(!all(names(checkList) %in% argList)){
+    stop("All name value pairs passed to checkArgs must corrispond to a argument of func")
+  }
+  
   output <-  function(){
+    my_args <- as.list(match.call())
     
+    my_args <- my_args[2:length(my_args)]
+    for(var_name in unique(names(checkList))){
+      # print(paste0("checking var of name ", var_name))
+      var_checks <- checkList[names(checkList) == var_name]
+      val <- my_args[[var_name]]
+      # print(paste0("Val of that var is ", val))
+      # print(paste0("And the checks to perform are: ", var_checks))
+      for(check in var_checks){
+        if(!typeCheck(val,check)){
+          
+          stop(paste0("Incorrect argument class: ", class(val), " for argument: ", var_name ," in function: ", func_name))
+        }
+      }
+    }
+    
+    return(do.call(func,my_args))
   }
   
   formals(output) <-  formals(func)
   
-  return function
-  
+  return(output)
 }
 
 
+str_only_print <- function(x, y){
+ if(!is.character(x)){
+   stop("AAAAAAAAAAAA")
+ }else{
+   print(x)
+ }
+}
 
 
-
-
+#We can add on the argument checks using checkArgs:
+str_only_print <-  checkArgs(str_only_print, x = is.character, x = function(x){x == "Hello"}, y = "logical")
+str_only_print("Hello", TRUE)
 
 
 
