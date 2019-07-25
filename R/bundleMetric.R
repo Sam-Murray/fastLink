@@ -1,3 +1,62 @@
+#' checkArgs
+#'
+#' Takes a function with arguments, and returns a modified function that checks the types of each argument.
+#' 
+#'
+#' @usage checkArgs(func, ...)
+#'
+#' @param func Any function with arguments.
+#' @param ... Name value pairs of arguments to func, and their associated type(ie "numeric") or type check function(ie is.numeric). Check args will use either
+#'
+#' @details If multiple name value pairs in ... contain the same name, checkArgs will do two checks on that argument. However, this is not reccomended.
+#'  
+#' @example
+#' #Say we have a function f that should only take a string:
+#'str_only_print <- function(x){
+#'  if(!is.character(x)){
+#'    stop("AAAAAAAAAAAA")
+#'  }else{
+#'    print(x)
+#'  }
+#'}
+#'#We can add on the argument checks using checkArgs:
+#'str_only_print <-  checkArgs(str_only_print, x = is.character())
+#'#Now we instead of throwing error "AAAAAAAAAAAA" when being passed a string, it will throw "Incorrect argument type for argument x in str_only_print"
+#' 
+#' 
+#' @author Sam Murray <slmurray@andrew.cmu.edu>
+#'
+#'
+#' @export
+#' @import tidyverse
+
+checkArgs <-  function(func, ...){
+  func_name = deparse(substitute(func))
+  if(!(is.function(func)|(class(func) == "function"))){
+    stop(paste("checkArgs only accepts functions, but was passed something with class: ", class(func)))
+  } 
+  #Gets the list of arguments to check
+  checkList = list(...)
+  #Gets the list of args for 
+  argList = names(formals(func))
+  output <-  function(){
+    
+  }
+  
+  formals(output) <-  formals(func)
+  
+  return function
+  
+}
+
+
+
+
+
+
+
+
+
 #' bundleMetric
 #'
 #' Generalised way to create comparison vectors for any metric.
@@ -33,11 +92,29 @@
 bundleMetric <-  function(metric_func, names, cutoffs, ... , type = NULL, typeCheck = NULL){
   
   
-  
+  return("hio")
   
   
 }
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #' bundleMatMetric
 #'
 #' Generalised way to create comparison vectors for any metric.
@@ -75,7 +152,7 @@ bundleMatMetric <-  function(metric_func, varnames, cutoffs, ... , type = NULL, 
   output = list()
   output$varnames <-  varnames
   if(is.null(type) && (is.null(typeCheck))){
-    warning("bundleMatMetric recommends passing a type or type checking function in order to ensure that the output function is nevery given a type it cannot handle")
+    warning("bundleMatMetric recommends passing a type or type checking function in order to ensure that the output function is never given a type it cannot handle")
   }else if(is.null(typeCheck)){
     typeCheck <-  function(x){
       result <-  (unlist(x) == type)
@@ -84,7 +161,7 @@ bundleMatMetric <-  function(metric_func, varnames, cutoffs, ... , type = NULL, 
   }
   output$typeCheck = typeCheck
   
-  metric 
+  return(3)
   
   
   
