@@ -147,7 +147,7 @@ checkArgs <-  function(func, ...){
 #'
 #' @export
 #' @import tidyverse
-checkArgs <-  function(func, ...){
+supplyArgs <-  function(func, ...){
   func_name <-   paste0(deparse(substitute(func)), collapse = "")
   if(nchar(func_name) >= 50){
     func_name <- paste0(substr(func_name, 0, 50), " ... ")
@@ -177,19 +177,8 @@ checkArgs <-  function(func, ...){
     my_args <- as.list(match.call())
     
     my_args <- my_args[2:length(my_args)]
-    for(var_name in unique(names(checkList))){
-      # print(paste0("checking var of name ", var_name))
-      var_checks <- checkList[names(checkList) == var_name]
-      val <- my_args[[var_name]]
-      # print(paste0("Val of that var is ", val))
-      # print(paste0("And the checks to perform are: ", var_checks))
-      for(check in var_checks){
-        if(!typeCheck(val,check)){
-          
-          stop(paste0("Incorrect argument class: ", class(val), " for argument: ", var_name ," in function: ", func_name))
-        }
-      }
-    }
+    
+    my_args <- c(my_args, valList[!(names(valList) %in% names(my_args))])
     
     return(do.call(func,my_args))
   }
@@ -199,8 +188,3 @@ checkArgs <-  function(func, ...){
   return(output)
 }
 
-print_with_cond <- function(x,y){
- if(y){
-   print(x)
- }
-}
