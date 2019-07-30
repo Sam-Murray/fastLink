@@ -1,5 +1,107 @@
-
-
+#' matrixMetric
+#'
+#' Takes a binary metric function metric_func, turns it into a function that takes 2 vectors, and returns a matrix of the value.
+#' 
+#'
+#' @usage matrixMetric(metric_func)
+#'
+#' @param metric_func A function that takes any 2 values and returns a single numeric value.
+#' @return \code{matrixMetric} Returns a function that takes 2 vectors and returns a matrix of values, such that the (i,j)th value of the returned matrix is the metric func
+#' of the ith element of the first vector and the jth value of the second. 
+#'
+#' @author Sam Murray <slmurray@andrew.cmu.edu>
+#'
+#' @export
+#' @import tidyverse
+matrixMetric <- function(metric_func){
+  
+  output <- function(vecA, vecB){
+    return(outer(vecA, vecB, metric_func))
+  }
+}
+#' applyCutoffs
+#'
+#' Takes a function that returns a matrix of values, returns function that returns a sparse matrix of levels corrisponding to which set of cutoffs the original return value was between.
+#' For example, if the (i,j)th element in the matrix returned by matrix_func was between cutoffs n and n+1, the (i,j)th value of applyCutoffs(matrix_func, cutoffs) result would be n.
+#' 
+#'
+#' @usage applyCutoffs(matrix_func)
+#'
+#' @param matrix_func A function that returns a matrix of values
+#' @param cutoffs A numeric vector of cutoff values. Should always be ordered from least to greatest.
+#' @param descending A boolean that signals whether the least bucket has highest score, or the greatest range has highest score. See details.
+#' 
+#' @details applyCutoffs assigns a score from 0 to \code{length(cutoffs)} to every numeric value(or other ordered type) depending on what cutoffs the value falls between, and whether descending is true or false.
+#' If descending is false, any value in the range \code{[cutoffs[a], cutoffs[a+1])} is assigned score \code(a). If descending is true, any value in the range \code{(cutoffs[a], cutoffs[a+1]] is assigned score \code(length(cutoffs) -  a)
+#' 
+#' @return \code{matrixMetric} Returns a function that has the same arguments as matrix_func, but returns a sparse matrix of cutoff levels corrisponding to the greatest cutoff less than the original value.
+#'  
+#'
+#' @author Sam Murray <slmurray@andrew.cmu.edu>
+#'
+#' @export
+#' @import tidyverse
+applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
+  
+  output <- function(...){
+    if(is.primitive(metric_func)){
+      res <- metric_func(...)
+    }else{
+      res <- do.call(metric_func, as.list(match.call())[-1])
+    }
+    
+    #Number of total ranges produced by the cutoffs
+    cutoff_num = length(cutoffs)
+    
+    #If descending is true, then we want 0 to go to the first bucket with cutoff greater than or equal to it
+    if(descending){
+      zeroCutoff <-  match(TRUE, 0 <= cutoffs, nomatch = 0)
+      if(zeroCutoff == 0) zeroCutoff <- cutoffs[cutoff_num] + 1
+    }else{
+      zeroCutoff <-  match(TRUE, 0 >= cutoffs, nomatch = 0)
+    }
+    
+    
+    if(zeroCutoff != 0){
+      res[res == 0] <- zeroCutoff
+    }
+    print(res)
+     
+    
+    out <- Matrix(res, sparse = T)
+    gc()
+    #For each cutoff i, determines which values in the matrix fall between that cutoff.
+    for(i in 1:(cutoff_num)){
+      if(i == 1){
+        if(descending){
+          out@x[out@x <= cutoffs[1]] <- cutoff_num
+        }else{
+          out@x[out@x < cutoffs[1]] <- 0
+        }
+        print(out)
+      }else{
+        if(descending){
+          out@x[ cutoffs[i-1] < out@x & out@x <= cutoffs[i] ] <- cutoff_num - (i-1)
+        }else{
+          out@x[ cutoffs[i-1] <= out@x & out@x < cutoffs[i] ] <- i - 1
+        }
+      }
+      gc() 
+    }
+    
+    #Catches upper bound edge case
+    if(descending){
+      out@x[out@x > cutoffs[cutoff_num]] <- 0
+    }else{
+      out@x[out@x >= cutoffs[cutoff_num]] <- cutoff_num
+    }
+    gc() 
+    return(out)
+  }
+  if(!is.primitive(metric_func)){formals(output) <- formals(metric_func)}
+  
+  return(output)
+}
 
 
 #' bundleMetric

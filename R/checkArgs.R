@@ -147,7 +147,7 @@ checkArgs <-  function(func, ...){
 #'
 #' @export
 #' @import tidyverse
-supplyArgs <-  function(func, ...){
+supplyArgs <-  function(func, ..., .OVERIDE = TRUE){
   func_name <-   paste0(deparse(substitute(func)), collapse = "")
   if(nchar(func_name) >= 50){
     func_name <- paste0(substr(func_name, 0, 50), " ... ")
@@ -177,13 +177,22 @@ supplyArgs <-  function(func, ...){
     my_args <- as.list(match.call())
     
     my_args <- my_args[2:length(my_args)]
+    if(.OVERIDE){
+      my_args <- c(my_args, valList[!(names(valList) %in% names(my_args))])
+    }else{
+      my_args <- c(my_args[!(names(my_args) %in% names(valList))], valList)
+    }
     
-    my_args <- c(my_args, valList[!(names(valList) %in% names(my_args))])
     
     return(do.call(func,my_args))
   }
   
-  formals(output) <-  formals(func)
+  if(.OVERIDE){
+    formals(output) <-  formals(func)
+  }else{
+    formals(output) <-  formals(func)[!(names(formals(func)) %in% names(valList))]
+  }
+  
   
   return(output)
 }
