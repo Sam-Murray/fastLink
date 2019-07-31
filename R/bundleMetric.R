@@ -62,7 +62,9 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
     
     
     if(zeroCutoff != 0){
-      res[res == 0] <- cutoffs[zeroCutoff]
+      if(descending){
+        
+      }
     }
     print(res)
      
@@ -76,6 +78,7 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
       }else{
         if(descending){
           out@x[ cutoffs[i-1] < out@x & out@x <= cutoffs[i] ] <- cutoffs[i]
+          print(out)
         }else{
           out@x[ cutoffs[i-1] <= out@x & out@x < cutoffs[i] ] <- cutoffs[i-1]
         }
@@ -87,6 +90,11 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
     if(!descending){
       out@x[out@x >= cutoffs[cutoff_num]] <- cutoffs[cutoff_num]
     }
+    
+    
+    #Gets the index of each score
+    out_inds <- map(cutoffs, ~which(out == .x, arr.ind = T))
+    
     gc() 
     return(out)
   }

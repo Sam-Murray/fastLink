@@ -196,4 +196,49 @@ supplyArgs <-  function(func, ..., .OVERIDE = TRUE){
   
   return(output)
 }
+#' wrapFunc
+#'
+#' Takes two functions\code{(func, wrapFunc)}, returns the function composition of the two funtions \code{(wrapFunc(func()))}.
+#' The return value will always have same arguments as func.
+#'
+#'
+#' @usage wrapFunc(func, wrapFunc)
+#'
+#' @param func Any non-primative function with arguments.
+#' @param wrapFunc Any function that can take as input the output of func. If this is not flexable enough, use supplyArgs or composeFunc.
+#'
+#' @details If multiple name value pairs in ... contain the same name, supplyArgs will through an error.
+#'
+#' @example
+#' #Say we have a function print_with_cond that has 2 arguments:
+#'print_with_cond <- function(x,y){
+#'  if(y){
+#'    print(x)
+#'  }
+#'}
+#'#We want to provide default values to that function
+#'print_with_cond <-  supplyArgs(print_with_cond, y = TRUE)
+#'#Now instead of throwing error "Error in print_with_cond(x) : argument "y" is missing, with no default", print_with_cond(x) will act the same as a call to print(x).
+#'
+#'
+#' @author Sam Murray <slmurray@andrew.cmu.edu>
+#'
+#'
+#' @export
+#' @import tidyverse
+wrapFunc <- function(func, wrap_func){
+  output <-  function(){
+    my_args <- as.list(match.call())
+    
+    my_args <- my_args[2:length(my_args)]
+    
+    return(wrap_func(do.call(func,my_args)))
+  }
+  
+  formals(output) <-  formals(func)
+  
+  
+  return(output)
+}
+
 
