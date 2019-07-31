@@ -56,14 +56,13 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
     #If descending is true, then we want 0 to go to the first bucket with cutoff greater than or equal to it
     if(descending){
       zeroCutoff <-  match(TRUE, 0 <= cutoffs, nomatch = 0)
-      if(zeroCutoff == 0) zeroCutoff <- cutoffs[cutoff_num] + 1
     }else{
       zeroCutoff <-  match(TRUE, 0 >= cutoffs, nomatch = 0)
     }
     
     
     if(zeroCutoff != 0){
-      res[res == 0] <- zeroCutoff
+      res[res == 0] <- cutoffs[zeroCutoff]
     }
     print(res)
      
@@ -72,28 +71,21 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
     gc()
     #For each cutoff i, determines which values in the matrix fall between that cutoff.
     for(i in 1:(cutoff_num)){
-      if(i == 1){
-        if(descending){
-          out@x[out@x <= cutoffs[1]] <- cutoff_num
-        }else{
-          out@x[out@x < cutoffs[1]] <- 0
-        }
-        print(out)
+      if(i == 1 && descending){
+        out@x[out@x <= cutoffs[1]] <- cutoffs[1]
       }else{
         if(descending){
-          out@x[ cutoffs[i-1] < out@x & out@x <= cutoffs[i] ] <- cutoff_num - (i-1)
+          out@x[ cutoffs[i-1] < out@x & out@x <= cutoffs[i] ] <- cutoffs[i]
         }else{
-          out@x[ cutoffs[i-1] <= out@x & out@x < cutoffs[i] ] <- i - 1
+          out@x[ cutoffs[i-1] <= out@x & out@x < cutoffs[i] ] <- cutoffs[i-1]
         }
       }
       gc() 
     }
     
     #Catches upper bound edge case
-    if(descending){
-      out@x[out@x > cutoffs[cutoff_num]] <- 0
-    }else{
-      out@x[out@x >= cutoffs[cutoff_num]] <- cutoff_num
+    if(!descending){
+      out@x[out@x >= cutoffs[cutoff_num]] <- cutoffs[cutoff_num]
     }
     gc() 
     return(out)
