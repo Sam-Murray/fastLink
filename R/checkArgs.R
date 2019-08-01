@@ -94,6 +94,11 @@ checkArgs <-  function(func, ...){
     my_args <- as.list(match.call())
     
     my_args <- my_args[2:length(my_args)]
+    
+    evaled_args <- map(my_args, force)
+    names(evaled_args) <-  names(my_args)
+    
+    my_args <- evaled_args
     for(var_name in unique(names(checkList))){
       # print(paste0("checking var of name ", var_name))
       var_checks <- checkList[names(checkList) == var_name]
