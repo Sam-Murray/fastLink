@@ -86,7 +86,13 @@ applyCutoffs <- function(metric_func, cutoffs, descending = TRUE){
 }
 
 makeGamma <- function(cutoff_func, parallelize_limit = 4500){
+  
+  
+  cutoff_func <- cut_met
+  matAp <- x
+  matBp <- y
   output <- function(matAp, matBp, n.cores = NULL){
+    
     if(any(class(matAp) %in% c("tbl_df", "data.table"))){
       matAp <- as.data.frame(matAp)[,1]
     }
@@ -111,11 +117,9 @@ makeGamma <- function(cutoff_func, parallelize_limit = 4500){
     matrix.1 <- as.matrix(as.numeric(matAp))
     matrix.2 <- as.matrix(as.numeric(matBp))
     
-    u.values.1 <- unique(matrix.1)
-    u.values.2 <- unique(matrix.2)
-    
-    u.values.1 <- na.omit(u.values.1)
-    u.values.2 <- na.omit(u.values.2)
+
+    u.values.1 <- na.omit(unique(matrix.1))
+    u.values.2 <- na.omit(unique(matrix.2))
     
     n.slices1 <- max(round(length(u.values.1)/(4500), 0), 1) 
     n.slices2 <- max(round(length(u.values.2)/(4500), 0), 1) 
@@ -138,17 +142,20 @@ makeGamma <- function(cutoff_func, parallelize_limit = 4500){
     
     do <- expand.grid(1:n.slices2, 1:n.slices1)
     
-    if (n.cores2 == 1) '%oper%' <- foreach::'%do%'
-    else { 
+    if (n.cores2 == 1){
+      '%oper%' <- foreach::'%do%'
+    }else { 
       '%oper%' <- foreach::'%dopar%'
       cl <- makeCluster(n.cores2)
       registerDoParallel(cl)
       on.exit(stopCluster(cl))
     }
-    
+    temp.1[[1]]
     temp.f <- foreach(i = 1:nrow(do), .packages = c("Rcpp", "Matrix")) %oper% {
       r1 <- do[i, 1]
       r2 <- do[i, 2]
+      
+      ##TODO: unpack rs
       cutoff_func(temp.1[[r1]], temp.2[[r2]])
     }
     
