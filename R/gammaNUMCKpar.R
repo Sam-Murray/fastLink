@@ -79,6 +79,8 @@ gammaNUMCKpar <- function(matAp, matBp, n.cores = NULL, cut.a = 1, cut.p = 2) {
         e <- as.matrix(y[[1]])        
 
         t <- calcPWDcpp(as.matrix(x), as.matrix(e))
+        
+        
         t[ t == 0 ] <- cut[1]
         t[ t > cut[2] ] <- 0
         t <- Matrix(t, sparse = T)
